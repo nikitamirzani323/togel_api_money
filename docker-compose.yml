@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  apiclient:
+    image: toto_api_money:0.0.1
+    build: "."
+    ports:
+      - "6062"
+    restart: "always"
+    networks:
+      - "totoapimoney.network"
+    deploy:
+      replicas: 3
+      restart_policy:
+        max_attempts: 3
+        condition: on-failure       
+      update_config:
+        parallelism: 3
+        delay: 5s
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - apiclient
+    ports:
+      - "6061:6061"
+    restart: always
+    networks:
+      - "totoapimoney.network"
+networks:
+  totoapimoney.network:
